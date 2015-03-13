@@ -15,10 +15,15 @@ class Form extends Form_Element
 
 	public function __construct()
 	{
+		$this->addClass('form-horizontal');
+		$this->setAttribute('method', 'post');
+
 		$this->addGlobal(new Form_Button(
 			'save',
 			'Save'
 		));
+
+	return $this;
 	}
 
 	public function add(Form_Section $section)
@@ -39,7 +44,9 @@ class Form extends Form_Element
 
 	public function setAction($uri)
 	{
-		$this->_action = $uri;
+		$this->setAttribute('action', $uri);
+
+		return $this;
 	}
 
 	public function getLabelWidth()
@@ -73,7 +80,7 @@ class Form extends Form_Element
 		$html .= implode('', $this->_global);
 
 		return <<<EOT
-	<form class="form-horizontal" action="{$this->_action}" method="post">
+	<form {$this->getHtmlClass()} {$this->getHtmlAttribute()}st">
 		{$html}
 	</form>
 EOT;
