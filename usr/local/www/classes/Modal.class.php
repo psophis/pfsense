@@ -1,22 +1,32 @@
 <?php
 
-require_once('classes/Form/Element.class.php');
-require_once('classes/Form/Input.class.php');
+require_once('classes/Form.class.php');
 foreach (glob('classes/Form/*.class.php') as $file)
 	require_once($file);
 
-class Modal extends Form_Element
+class Modal extends Form
 {
 	protected $_id = '';
 	protected $_title = '';
 	protected $_groups = array();
 	protected $_footer = array();
-	protected $_labelWidth = 2;
-	// Empty is interpreted by all browsers to submit to the current URI
-	protected $_action;
+	protected $_html = '';
+	protected $_modal_class_size = '';
 
-	public function __construct($title, $id)
+	public function __construct($title, $id, $size = '')
 	{
+		switch ($size) {
+			case 'small':
+				$this->_modal_class_size = 'modal-sm';
+				break;
+			case 'large':
+				$this->_modal_class_size = 'modal-lg';
+				break;
+			case '':
+				break;
+			default:
+				throw new Exception('Incorrect size, pass either large or small');
+		}
 		$this->_id = $id;
 		$this->_title = $title;
 
@@ -43,22 +53,11 @@ class Modal extends Form_Element
 		return $input;
 	}
 
-	public function setLabelWidth($size)
+	public function addHtml($html)
 	{
-		if ($size < 1 || $size > 12)
-			throw new Exception('Incorrect size, pass a number between 1 and 12');
+		$this->_html .= $html;
 
-		$this->_labelWidth = (int)$size;
-	}
-
-	public function setAction($uri)
-	{
-		$this->_action = $uri;
-	}
-
-	public function getLabelWidth()
-	{
-		return $this->_labelWidth;
+		return $this;
 	}
 
 	public function addFooter(Form_Input $input)
@@ -66,11 +65,6 @@ class Modal extends Form_Element
 		array_push($this->_footer, $input);
 
 		return $input;
-	}
-
-	protected function _setParent()
-	{
-		throw new Exception('Form does not have a parent');
 	}
 
 	public function __toString()
@@ -89,12 +83,16 @@ class Modal extends Form_Element
 		}
 
 		$title = gettext($title);
+
 		$html = implode('', $this->_groups);
-		$footer = implode('', $this->_footer);
+		$html .= $this->_html;
+
+		$footer = implode('', $this->_global);
+		$footer .= implode('', $this->_footer);
 
 		return <<<EOT
 	<div {$this->getHtmlClass()} id="{$this->_id}" role="dialog" aria-labelledby="{$this->_id}" aria-hidden="true">
-		<div class="modal-dialog">
+		<div class="modal-dialog {$this->_modal_class_size}">
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -102,14 +100,14 @@ class Modal extends Form_Element
 					</button>
 					<h3 class="modal-title">{$this->_title}</h3>
 				</div>
-				<div class="modal-body">
-					<form class="form-horizontal" action="{$this->_action}" method="post">
+				<form class="form-horizontal" action="{$this->_action}" method="post">
+					<div class="modal-body">
 						{$html}
-					</form>
-				</div>
-				<div class="modal-footer">
-					{$footer}
-				</div>
+					</div>
+					<div class="modal-footer">
+						{$footer}
+					</div>
+				</form>
 			</div>
 		</div>
 	</div>
