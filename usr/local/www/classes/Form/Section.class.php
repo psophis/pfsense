@@ -48,8 +48,9 @@ class Form_Section extends Form_Element
 		<div class="panel-heading">
 			<h2 class="panel-title">{$title}</h2>
 		</div>
-
-		<div class="panel-body">{$body}</div>
+		<div class="panel-body">
+			{$body}
+		</div>
 	</div>
 EOT;
 	}
